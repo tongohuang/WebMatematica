@@ -1,0 +1,24 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[context.production.environment]
+  VITE_FIREBASE_API_KEY = ""
+  VITE_FIREBASE_AUTH_DOMAIN = ""
+  VITE_FIREBASE_PROJECT_ID = ""
+  VITE_FIREBASE_STORAGE_BUCKET = ""
+  VITE_FIREBASE_MESSAGING_SENDER_ID = ""
+  VITE_FIREBASE_APP_ID = ""
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    Content-Security-Policy = "default-src 'self'; connect-src 'self' https://*.firebase.googleapis.com https://*.firebaseio.com https://*.googleapis.com; img-src 'self' https://* data:; script-src 'self' 'unsafe-inline' https://*.firebaseio.com https://*.googleapis.com; style-src 'self' 'unsafe-inline';"
+    X-Content-Type-Options = "nosniff" 

@@ -1,61 +1,54 @@
-import { useState, useEffect } from 'react'
-import { Routes, Route, Navigate } from 'react-router-dom'
-import { onAuthStateChanged } from 'firebase/auth'
-import { auth } from './firebase/config'
+import React, { useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
+import Login from './components/Login';
+import Register from './components/Register';
+import Dashboard from './components/Dashboard';
+import CourseList from './components/CourseList';
+import CourseDetail from './components/CourseDetail';
+import AdminDashboard from './components/AdminDashboard';
+import ErrorPage from './components/ErrorPage';
+import NotFound from './components/NotFound';
+import AdminSetup from './components/AdminSetup';
+import PrivateRoute from './components/PrivateRoute';
+import AdminRoute from './components/AdminRoute';
+import ErrorBoundary from './components/ErrorBoundary';
+import { setupErrorCapture } from './utils/errorLogger';
 
-// Pages
-import HomePage from './pages/Home/HomePage'
-import CoursePage from './pages/Course/CoursePage'
-import AdminPage from './pages/Admin/AdminPage'
-import LoginPage from './pages/Auth/LoginPage'
-import NotFoundPage from './pages/NotFound/NotFoundPage'
-
-// Components
-import Header from './components/layout/Header'
-import Footer from './components/layout/Footer'
-import ErrorLogger from './modules/ErrorLogger/ErrorLogger'
+// Initialize error capture
+setupErrorCapture();
 
 function App() {
-  const [user, setUser] = useState(null)
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user)
-      setLoading(false)
-    })
-
-    return () => unsubscribe()
-  }, [])
-
-  if (loading) {
-    return <div className="flex h-screen items-center justify-center">
-      <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-primary-600"></div>
-    </div>
-  }
-
   return (
-    <div className="min-h-screen flex flex-col">
-      <ErrorLogger />
-      <Header user={user} />
-      
-      <main className="flex-grow">
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/course/:courseId" element={<CoursePage />} />
-          <Route path="/admin" element={
-            user?.email ? <AdminPage /> : <Navigate to="/login" />
-          } />
-          <Route path="/login" element={
-            user?.email ? <Navigate to="/admin" /> : <LoginPage />
-          } />
-          <Route path="*" element={<NotFoundPage />} />
-        </Routes>
-      </main>
-      
-      <Footer />
-    </div>
-  )
+    <ErrorBoundary>
+      <AuthProvider>
+        <Router>
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/setup" element={<AdminSetup />} />
+            
+            {/* Protected Routes */}
+            <Route element={<PrivateRoute />}>
+              <Route path="/" element={<Navigate to="/dashboard" />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/courses" element={<CourseList />} />
+              <Route path="/courses/:id" element={<CourseDetail />} />
+            </Route>
+            
+            {/* Admin Routes */}
+            <Route element={<AdminRoute />}>
+              <Route path="/admin/dashboard" element={<AdminDashboard />} />
+            </Route>
+            
+            {/* Error Routes */}
+            <Route path="/error" element={<ErrorPage />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </Router>
+      </AuthProvider>
+    </ErrorBoundary>
+  );
 }
 
-export default App 
+export default App; 

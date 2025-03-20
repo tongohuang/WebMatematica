@@ -1,58 +1,92 @@
-# Aplicación Web Educativa de Matemáticas
+# WebMatemática
 
-Aplicación web educativa modular y gratuita enfocada en contenidos de matemáticas, con un panel de administración para docentes y una interfaz intuitiva para estudiantes.
+Una aplicación web educativa para la enseñanza de matemáticas, construida con React, Firebase y desplegada en Netlify.
 
 ## Características
 
-- **Panel de administración para docentes**
-- **Interfaz intuitiva para estudiantes**
-- **Cursos organizados por categorías**
-- **Integración con videos de YouTube**
-- **Soporte para applets de GeoGebra y simuladores PhET**
-- **Visor de PDFs integrado**
-- **Actividades de autoevaluación**
-- **Ecuaciones matemáticas con LaTeX**
+- Autenticación de usuarios (estudiantes y administradores)
+- Catálogo de cursos de matemáticas
+- Sistema de seguimiento del progreso de estudiantes
+- Panel de administración para gestionar cursos y contenidos
 
 ## Tecnologías
 
-- React.js
-- Firebase (autenticación y almacenamiento)
-- Tailwind CSS
-- Vite
+- React con Vite
+- Firebase (Authentication, Firestore, Storage)
+- Netlify para despliegue continuo
+- GitHub Actions para CI/CD
 
 ## Instalación
 
-1. Clonar el repositorio:
+1. Clona este repositorio:
 ```
-git clone <repository-url>
+git clone https://github.com/tu-usuario/webmatematica.git
+cd webmatematica
 ```
 
-2. Instalar dependencias:
+2. Instala las dependencias:
 ```
-cd matematica-web
 npm install
 ```
 
-3. Configurar Firebase:
-   - Crear un proyecto en Firebase
-   - Habilitar autenticación por email/password
-   - Crear una base de datos en Firestore
-   - Configurar storage para PDFs
-   - Copiar las credenciales a `/src/firebase/config.js`
+3. Crea un archivo `.env.local` en la raíz del proyecto con tus credenciales de Firebase:
+```
+VITE_FIREBASE_API_KEY=tu-api-key
+VITE_FIREBASE_AUTH_DOMAIN=tu-auth-domain
+VITE_FIREBASE_PROJECT_ID=tu-project-id
+VITE_FIREBASE_STORAGE_BUCKET=tu-storage-bucket
+VITE_FIREBASE_MESSAGING_SENDER_ID=tu-messaging-sender-id
+VITE_FIREBASE_APP_ID=tu-app-id
+```
 
-4. Iniciar el servidor de desarrollo:
+## Desarrollo local
+
+### Ejecutar la aplicación
+
 ```
 npm run dev
 ```
 
-## Estructura de carpetas
+### Ejecutar emuladores de Firebase
 
-- **/src**
-  - **/components**: Componentes reutilizables
-  - **/modules**: Módulos funcionales (Auth, Courses, Activities, ErrorLogger)
-  - **/pages**: Páginas principales de la aplicación
-  - **/utils**: Utilidades y funciones de ayuda
+```
+firebase emulators:start
+```
 
 ## Despliegue
 
-La aplicación está configurada para despliegue en Netlify y GitHub Pages. 
+### Despliegue manual a Firebase
+
+```
+npm run build
+firebase deploy
+```
+
+### Despliegue manual a Netlify
+
+```
+npm run build
+netlify deploy --prod
+```
+
+## Estructura del proyecto
+
+```
+src/
+  ├── components/    # Componentes reutilizables
+  ├── pages/         # Páginas de la aplicación
+  ├── context/       # Contextos de React (Auth, etc.)
+  ├── hooks/         # Hooks personalizados
+  ├── services/      # Servicios para Firebase
+  ├── utils/         # Utilidades y funciones auxiliares
+  ├── App.jsx        # Componente principal
+  └── main.jsx       # Punto de entrada
+```
+
+## Reglas de seguridad
+
+El proyecto incluye reglas de seguridad para Firestore y Storage que aseguran que:
+
+- Solo los administradores pueden crear/modificar cursos
+- Los estudiantes solo pueden ver su propio progreso
+- Solo usuarios autenticados pueden acceder a los recursos 
