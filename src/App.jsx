@@ -12,6 +12,7 @@ import NotFound from './components/NotFound';
 import AdminSetup from './components/AdminSetup';
 import PrivateRoute from './components/PrivateRoute';
 import AdminRoute from './components/AdminRoute';
+import Header from './components/Header';
 import ErrorBoundary from './components/ErrorBoundary';
 import { setupErrorCapture } from './utils/errorLogger';
 
@@ -24,16 +25,17 @@ function App() {
       <AuthProvider>
         <Router>
           <Routes>
+            {/* Public routes */}
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/setup" element={<AdminSetup />} />
+            <Route path="/" element={<CourseList isPublic={true} />} />
+            <Route path="/courses" element={<CourseList isPublic={true} />} />
+            <Route path="/courses/:id" element={<CourseDetail isPublic={true} />} />
             
             {/* Protected Routes */}
             <Route element={<PrivateRoute />}>
-              <Route path="/" element={<Navigate to="/dashboard" />} />
               <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/courses" element={<CourseList />} />
-              <Route path="/courses/:id" element={<CourseDetail />} />
             </Route>
             
             {/* Admin Routes */}

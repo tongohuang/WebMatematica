@@ -1,115 +1,120 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import Button from './Button';
+import { logError } from '../utils/errorLogger';
+import Layout from './Layout';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { login, signInWithGoogle } = useAuth();
+  const [error, setError] = useState('');
+  const { login } = useAuth();
   const navigate = useNavigate();
 
   async function handleSubmit(e) {
     e.preventDefault();
     
-    try {
-      setError('');
-      setLoading(true);
-      await login(email, password);
-      navigate('/dashboard');
-    } catch (err) {
-      setError('Failed to sign in: ' + err.message);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function handleGoogleSignIn() {
-    try {
-      setError('');
-      setLoading(true);
-      await signInWithGoogle();
-      navigate('/dashboard');
-    } catch (err) {
-      setError('Failed to sign in with Google: ' + err.message);
-    } finally {
-      setLoading(false);
+    // Validación específica para el docente
+    if (email === 'docente' || email === 'docente@webmatematica.com') {
+      try {
+        setError('');
+        setLoading(true);
+        // Siempre usamos el email completo para Firebase
+        await login('docente@webmatematica.com', password);
+        navigate('/admin/dashboard');
+      } catch (err) {
+        logError('Error en inicio de sesión', { error: err });
+        setError('Error al iniciar sesión: ' + (err.message || 'Credenciales incorrectas'));
+      } finally {
+        setLoading(false);
+      }
+    } else {
+      setError('Solo el administrador puede iniciar sesión en esta plataforma');
     }
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
+    <Layout withAuth={false}>
+      <div className="min-h-full flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+        <div className="sm:mx-auto sm:w-full sm:max-w-md">
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Sign in to your account
+            Iniciar sesión como docente
           </h2>
+          <p className="mt-2 text-center text-sm text-gray-600">
+            Accede al panel de administración
+          </p>
         </div>
-        {error && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-          <span className="block sm:inline">{error}</span>
-        </div>}
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div className="rounded-md shadow-sm -space-y-px">
-            <div>
-              <label htmlFor="email-address" className="sr-only">Email address</label>
-              <input
-                id="email-address"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Email address"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </div>
-            <div>
-              <label htmlFor="password" className="sr-only">Password</label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="current-password"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </div>
-          </div>
 
-          <div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-            >
-              {loading ? 'Signing in...' : 'Sign in'}
-            </button>
+        <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+          <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+            {error && (
+              <div className="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                <span className="block sm:inline">{error}</span>
+              </div>
+            )}
+            
+            <form className="space-y-6" onSubmit={handleSubmit}>
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                  Usuario
+                </label>
+                <div className="mt-1">
+                  <input
+                    id="email"
+                    name="email"
+                    type="text"
+                    autoComplete="username"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    placeholder="docente"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                  Contraseña
+                </label>
+                <div className="mt-1">
+                  <input
+                    id="password"
+                    name="password"
+                    type="password"
+                    autoComplete="current-password"
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <Button
+                  type="submit"
+                  variant="primary"
+                  className="w-full"
+                  disabled={loading}
+                >
+                  {loading ? 'Iniciando sesión...' : 'Iniciar sesión'}
+                </Button>
+              </div>
+            </form>
+
+            <div className="mt-6">
+              <div className="text-center">
+                <Link to="/" className="font-medium text-indigo-600 hover:text-indigo-500">
+                  Volver a la página principal
+                </Link>
+              </div>
+            </div>
           </div>
-          
-          <div className="text-sm text-center">
-            <span className="text-gray-600">Don't have an account?</span>{' '}
-            <Link to="/register" className="font-medium text-indigo-600 hover:text-indigo-500">
-              Sign up
-            </Link>
-          </div>
-        </form>
-        
-        <div>
-          <button
-            type="button"
-            onClick={handleGoogleSignIn}
-            disabled={loading}
-            className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-          >
-            {loading ? 'Signing in...' : 'Sign in with Google'}
-          </button>
         </div>
       </div>
-    </div>
+    </Layout>
   );
 } 

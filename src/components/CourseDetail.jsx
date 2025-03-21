@@ -7,7 +7,7 @@ import Layout from './Layout';
 import Button from './Button';
 import { logError } from '../utils/errorLogger';
 
-export default function CourseDetail() {
+export default function CourseDetail({ isPublic = false }) {
   const { id } = useParams();
   const { currentUser } = useAuth();
   const [course, setCourse] = useState(null);
@@ -159,6 +159,24 @@ export default function CourseDetail() {
       return <p className="text-gray-500 italic">No hay actividades disponibles para esta sección.</p>;
     }
     
+    // Para usuarios no autenticados, solo mostrar nombres de actividades
+    if (isPublic && !currentUser) {
+      return (
+        <div className="mt-8">
+          <h3 className="text-xl font-semibold mb-4">Actividades</h3>
+          <div className="space-y-4">
+            {activities.map(activity => (
+              <div key={activity.id} className="bg-gray-50 p-4 rounded-lg">
+                <h4 className="font-medium text-lg">{activity.title}</h4>
+                <p className="text-gray-600">{activity.description}</p>
+                <p className="text-sm text-indigo-600 mt-2">Inicia sesión como estudiante para realizar esta actividad</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+    
     return (
       <div className="mt-8">
         <h3 className="text-xl font-semibold mb-4">Actividades</h3>
@@ -179,9 +197,11 @@ export default function CourseDetail() {
     );
   }
 
+  const isAdmin = currentUser && currentUser.email === 'docente@webmatematica.com';
+
   if (loading) {
     return (
-      <Layout>
+      <Layout withAuth={!isPublic}>
         <div className="flex justify-center items-center h-64">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-600"></div>
         </div>
@@ -191,7 +211,7 @@ export default function CourseDetail() {
 
   if (error) {
     return (
-      <Layout>
+      <Layout withAuth={!isPublic}>
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative max-w-4xl mx-auto mt-6" role="alert">
           <span className="block sm:inline">{error}</span>
         </div>
@@ -201,11 +221,11 @@ export default function CourseDetail() {
 
   if (!course) {
     return (
-      <Layout>
+      <Layout withAuth={!isPublic}>
         <div className="text-center py-12">
           <h2 className="text-2xl font-bold text-gray-900">Curso no encontrado</h2>
           <div className="mt-4">
-            <Link to="/dashboard" className="text-indigo-600 hover:text-indigo-800">
+            <Link to="/courses" className="text-indigo-600 hover:text-indigo-800">
               Volver al listado de cursos
             </Link>
           </div>
@@ -215,7 +235,7 @@ export default function CourseDetail() {
   }
 
   return (
-    <Layout>
+    <Layout withAuth={!isPublic}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Course header */}
         <div className="mb-8">
@@ -230,8 +250,14 @@ export default function CourseDetail() {
               </div>
             </div>
             
-            {currentUser && currentUser.email === 'admin@example.com' && (
-              <Button as={Link} to={`/courses/${id}/edit`} variant="secondary" size="sm">
+            {isPublic && !currentUser && (
+              <Link to="/login" className="text-indigo-600 hover:text-indigo-800 font-medium">
+                Iniciar Sesión Docente
+              </Link>
+            )}
+            
+            {isAdmin && (
+              <Button as={Link} to={`/admin/courses/${id}/edit`} variant="secondary" size="sm">
                 Editar curso
               </Button>
             )}
