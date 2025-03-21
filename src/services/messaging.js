@@ -65,7 +65,7 @@ export const subscribeToTopic = async (token, topic) => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `key=${import.meta.env.VITE_FIREBASE_SERVER_KEY}`
+        'Authorization': `key=${import.meta.env.VITE_SERVER_KEY}`
       }
     });
     
